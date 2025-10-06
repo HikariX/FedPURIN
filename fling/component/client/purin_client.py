@@ -110,20 +110,20 @@ class PurinClient(BaseClient):
                 if 'bn' in name2 or 'downsample.1' in name2:
                     continue # Jump over all the bn layers.
             
-            # if 'pre' in name2 or 'fc' in name2:  # Head or nn.Linear
-            #     if self.args.hyper.HeadEnd:
-            #         mask = torch.ones_like(param.data).to('cpu') # 不处理头尾，故全传
-            #         global_mask.append(torch.zeros_like(mask).to('cpu'))
-            #         local_mask.append(mask)
-            #         critical_parameter.append(mask.view(-1))
-            #         continue
-            # elif 'bn' in name2 or 'downsample.1' in name2:
-            #     if self.args.hyper.isBN: # bn参数全传，若为false则进行挑选合作
-            #         mask = torch.ones_like(param.data).to('cpu')
-            #         global_mask.append(torch.zeros_like(mask).to('cpu'))
-            #         local_mask.append(mask)
-            #         critical_parameter.append(mask.view(-1))
-            #         continue
+            if 'pre' in name2 or 'fc' in name2:  # Head or nn.Linear
+                if self.args.hyper.HeadEnd:
+                    mask = torch.ones_like(param.data).to('cpu') # 不处理头尾，故全传
+                    global_mask.append(torch.zeros_like(mask).to('cpu'))
+                    local_mask.append(mask)
+                    critical_parameter.append(mask.view(-1))
+                    continue
+            elif 'bn' in name2 or 'downsample.1' in name2:
+                if self.args.hyper.isBN: # bn参数全传，若为false则进行挑选合作
+                    mask = torch.ones_like(param.data).to('cpu')
+                    global_mask.append(torch.zeros_like(mask).to('cpu'))
+                    local_mask.append(mask)
+                    critical_parameter.append(mask.view(-1))
+                    continue
 
             g = (param.data - prevparam.data)
             v = param.data
